@@ -6,6 +6,7 @@ plt.rcParams.update({'font.size': 24, 'lines.linewidth':4})
 import matplotlib.patches as mpatches
 from math import log, e
 from itertools import zip_longest, cycle, groupby
+from matplotlib.ticker import FormatStrFormatter
 
 def get_cycle_scores(optical, num_cycles):
 
@@ -56,7 +57,8 @@ def map_color(nuc):
     return mapper[nuc]
 
 def plot_barcodes_in_space(beads, num_cyles, output_path):
-
+    plt.rcParams.update({'font.size': 30, 'lines.linewidth':5})
+    plt.rcParams["font.family"] = "Arial"
     output_path = os.path.join(output_path, "intermediate_files")
     if os.path.exists(output_path) == False:
         os.makedirs(output_path)
@@ -75,12 +77,13 @@ def plot_barcodes_in_space(beads, num_cyles, output_path):
         recs = []
         for i in range(0,len(class_colours)):
             recs.append(mpatches.Rectangle((0,0),1,1,fc=class_colours[i]))
-        plt.legend(recs,classes,loc='upper center', ncol=len(classes), bbox_to_anchor=(0.5, -0.05), prop={'size': 10})
-        plt.savefig(os.path.join(output_path, f'cycle_{cycle}_bases_spatial.png'), bbox_inches='tight', dpi=150)
+        plt.legend(recs,classes,loc='upper center', ncol=len(classes), bbox_to_anchor=(0.5, -0.05), prop={'size': 45})
+        plt.savefig(os.path.join(output_path, f'cycle_{cycle}_bases_spatial.png'), bbox_inches='tight', dpi=300)
         plt.close('all')
 
 def plot_entropy_in_space(beads, num_cyles, output_path):
-
+    plt.rcParams.update({'font.size': 40, 'lines.linewidth':5})
+    plt.rcParams["font.family"] = "Arial"
     output_path = os.path.join(output_path, "intermediate_files")
     if os.path.exists(output_path) == False:
         os.makedirs(output_path)
@@ -99,11 +102,13 @@ def plot_entropy_in_space(beads, num_cyles, output_path):
     cb_ax = fig.add_axes([.91,.124,.04,.754])
     cbar = fig.colorbar(sc,orientation='vertical',cax=cb_ax)
     for t in cbar.ax.get_yticklabels():
-        t.set_fontsize(10)
-    plt.savefig(os.path.join(output_path, f'entropy_spatial.png'), bbox_inches='tight', dpi=150)
+        t.set_fontsize(30)
+
+    plt.savefig(os.path.join(output_path, f'entropy_spatial.png'), bbox_inches='tight', dpi=300)
 
 def plot_compression_in_space(beads, num_cyles, output_path):
-
+    plt.rcParams.update({'font.size': 40, 'lines.linewidth':5})
+    plt.rcParams["font.family"] = "Arial"
     output_path = os.path.join(output_path, "intermediate_files")
     if os.path.exists(output_path) == False:
         os.makedirs(output_path)
@@ -117,16 +122,18 @@ def plot_compression_in_space(beads, num_cyles, output_path):
         complexities.append(complexity)
 
     fig = plt.figure()
-    sc = plt.scatter(beads['x_pos'], beads['y_pos'], s = 0.1, c=complexities, cmap='inferno')
+    sc = plt.scatter(beads['x_pos'], beads['y_pos'], s = 0.1, c=complexities)
     plt.axis('off')
     cb_ax = fig.add_axes([.91,.124,.04,.754])
     cbar = fig.colorbar(sc,orientation='vertical',cax=cb_ax)
     for t in cbar.ax.get_yticklabels():
-        t.set_fontsize(10)
-    plt.savefig(os.path.join(output_path, f'compression_spatial.png'), bbox_inches='tight', dpi=150)
+        t.set_fontsize(30)
+
+    plt.savefig(os.path.join(output_path, f'compression_spatial.png'), bbox_inches='tight', dpi=300)
 
 def plot_chastity_in_space(beads, num_cycles, output_path):
-
+    plt.rcParams.update({'font.size': 40, 'lines.linewidth':5})
+    plt.rcParams["font.family"] = "Arial"
     output_path = os.path.join(output_path, "intermediate_files")
     if os.path.exists(output_path) == False:
         os.makedirs(output_path)
@@ -137,11 +144,13 @@ def plot_chastity_in_space(beads, num_cycles, output_path):
     mean_scores = np.mean(puck_scores, axis=0)
     for cycle in range(num_cycles):
         fig = plt.figure()
-        sc = plt.scatter(beads['x_pos'], beads['y_pos'], s = 0.1, c=puck_scores[cycle, :], cmap='plasma')
+        sc = plt.scatter(beads['x_pos'], beads['y_pos'], s = 0.1, c=puck_scores[cycle, :])
         plt.axis('off')
         cb_ax = fig.add_axes([.91,.124,.04,.754])
+
         cbar = fig.colorbar(sc,orientation='vertical',cax=cb_ax)
         for t in cbar.ax.get_yticklabels():
-            t.set_fontsize(10)
-        plt.savefig(os.path.join(output_path, f'chastity_cycle+{cycle}.png'), bbox_inches='tight', dpi=150)
+            t.set_fontsize(30)
+        cbar.set_ticks([0.6, 0.85])
+        plt.savefig(os.path.join(output_path, f'chastity_cycle+{cycle}.png'), bbox_inches='tight', dpi=300)
         plt.close('all')

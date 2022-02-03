@@ -1,0 +1,4 @@
+*.tif
+*.png
+*.pyc
+*.snakemake

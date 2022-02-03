@@ -7,9 +7,9 @@ import pandas as pd
 from skimage.draw import line
 from skimage.measure import profile_line
 from optocoder.image_analysis.registration import get_warped_image
-
-plt.rcParams.update({'font.size': 24, 'lines.linewidth':4})
+import plotly.express as px
 import itertools
+import plotly.graph_objects as go
 
 def save_intensity_data(intensity_type, beads, output_path):
 
@@ -34,22 +34,51 @@ def save_intensity_data(intensity_type, beads, output_path):
 
 def evaluate_channel_intensities(image_manager, num_cycles, output_path):
 	intensities = []
-	for cycle in image_manager.cycles:
-		cycle_channels = cycle['raw_channels']
+	for cycle in range(image_manager.num_cycles):
+		cycle_channels,_ = image_manager._read_image(cycle)
 		mean_cycle_intensities = [np.mean(ch) for ch in cycle_channels]
 		intensities.append(mean_cycle_intensities)
-	colors = ["#9467bd", "#ff7f0e", "#7f7f7f", '#8c564b', '#2ca02c', '#d62728']
-	intensities = np.matrix(intensities)
-	f = plt.figure(figsize=(16,10))
-	for y, color in zip(intensities.T, colors):
-		plt.plot(np.arange(1,num_cycles+1), y.T, '-o', color=color)
-	plt.ylabel("Intensity")
-	plt.xlabel("Cycles")
-	plt.xticks(np.arange(1,num_cycles+1))
-	plt.legend(["Ch %i" % i for i in np.arange(1, 5)])
+	tick_font_params = dict(tickfont = dict(family="Arial",size=70))
+	intensities = pd.DataFrame(intensities, columns=['Ch 1', 'Ch 2', 'Ch 3', 'Ch 4'])
+	#fig = px.line(intensities, markers=True,color_discrete_sequence=px.colors.qualitative.D3)
+	colors = px.colors.qualitative.D3
+	fig = go.Figure()
+	fig.add_trace(go.Scatter(x=np.arange(1,num_cycles+1), y=intensities['Ch 1'],marker=dict(size=35),line=dict(color=colors[0], width=15),
+                    name='Ch 1', mode='lines+markers'))
+	fig.add_trace(go.Scatter(x=np.arange(1,num_cycles+1),y=intensities['Ch 2'],marker=dict(size=35),line=dict(color=colors[1], width=15),
+                    name='Ch 2', mode='lines+markers'))
+	fig.add_trace(go.Scatter(x=np.arange(1,num_cycles+1),y=intensities['Ch 3'],marker=dict(size=35),line=dict(color=colors[2], width=15),
+                    name='Ch 3', mode='lines+markers'))
+	fig.add_trace(go.Scatter(x=np.arange(1,num_cycles+1),y=intensities['Ch 4'],marker=dict(size=35), line=dict(color=colors[3], width=15),
+                    name='Ch 4', mode='lines+markers'))
 
-	plt.savefig(os.path.join(output_path, 'average_intensities.png'),bbox_inches='tight',dpi=150)
-	plt.close()
+
+	fig.update_yaxes(showgrid=False, showline=True, linewidth=1, linecolor='black', gridwidth=0.5, gridcolor='rgb(105, 105, 105, 60)', mirror=True, tickfont=tick_font_params['tickfont'])
+	fig.update_xaxes(tickmode='array', tickvals=list(np.arange(1,num_cycles+1)), ticktext=list(np.arange(1,num_cycles+1)),showgrid=False, showline=True, linewidth=1, linecolor='black', gridcolor='rgb(0, 0, 0, 0)', mirror=True, tickfont=tick_font_params['tickfont'])
+
+	fig.update_layout(
+    xaxis_title="Cycles",
+    yaxis_title="Raw Channel Intensities",
+    font=dict(
+        family="Arial",
+        size=60,
+    ))
+	fig.update_layout(legend=dict(
+    orientation="h",
+    yanchor="bottom",
+    y=1.02,
+    xanchor="right",
+    x=0.75
+	))
+	fig.update_layout(
+    width=2200,
+    height=1300,
+    paper_bgcolor='white',
+    plot_bgcolor='white')
+	fig.update_layout(legend_itemsizing='trace')
+	fig.update_layout(legend_itemwidth=120)
+	fig.write_image(os.path.join(output_path, 'svgs', 'average_intensities.svg'), scale=2)
+	fig.write_image(os.path.join(output_path, 'average_intensities.png'), scale=2)
 
 def save_image(image, cycle_id, output_path, folder):
 	output_path = os.path.join(output_path, "intermediate_files", "images", folder)
@@ -69,9 +98,6 @@ def save_registered_images(image_manager, beads, output_path):
 			cv2.circle(cimg,(bead.center[0],bead.center[1]),1,(0,0,255),1)
 
 		cv2.imwrite(os.path.join(output_path, 'cycle_%i.png' %i), cimg) 
-
-
-
 
 def get_cross_section_profile(image_manager, num_cycles, output_path):
 
@@ -94,7 +120,7 @@ def get_cross_section_profile(image_manager, num_cycles, output_path):
 			ax1.set_ylabel('Intensity')
 			ax1.set_title('Cycle %s' % str(i+1))
 	fig.legend(['Ch1', 'Ch2', 'Ch3', 'Ch4'], loc="center left")
-	plt.savefig(os.path.join(output_path, 'cross_section.png'),bbox_inches='tight',dpi=150)
+	plt.savefig(os.path.join(output_path, 'cross_section.png'),bbox_inches='tight',dpi=300)
 	plt.close()
 
 def save_detected_beads(image_manager, beads, output_path):
