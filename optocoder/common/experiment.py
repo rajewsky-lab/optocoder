@@ -9,7 +9,7 @@ import pandas as pd
 
 #Opseq module imports
 from optocoder.common.bead import Bead
-from optocoder.evaluation.evaluate_basecalls import plot_selected, plot_barcode_confidences, plot_barcode_compression, plot_barcode_entropy, evaluate_cycles, evaluate_fractions, output_prediction_data
+from optocoder.evaluation.evaluate_basecalls import plot_barcode_confidences, plot_barcode_compression, plot_barcode_entropy, evaluate_cycles, evaluate_fractions, output_prediction_data, plot_number_good_cycles
 from optocoder.evaluation.evaluate_images import save_intensity_data, save_detected_beads, get_cross_section_profile, evaluate_channel_intensities, save_registered_images
 from optocoder.evaluation.report import create_report
 from optocoder.evaluation.evaluate_registration import calculate_ssim
@@ -109,7 +109,7 @@ class Experiment():
 		df = pd.concat([df, df_scores], axis=1)
 		return df
 
-	def report(self, output_orig):
+	def report(self, output_orig, only_plots=False):
 		
 		# calculate  number of beads and unique barcodes
 		self.num_beads = len(self.beads)
@@ -119,25 +119,33 @@ class Experiment():
 
 		# set the output folders
 		output_plot_path = os.path.join(output_orig, 'plots')
+		output_plot_path_svgs = os.path.join(output_orig, 'plots', 'svgs')
+
 		output_intensities_path = os.path.join(output_orig, "intensity_files")
 		if not os.path.exists(output_plot_path):
 			os.mkdir(output_plot_path)
+		if not os.path.exists(output_plot_path_svgs):
+			os.mkdir(output_plot_path_svgs)
 		if not os.path.exists(output_intensities_path):
 			os.mkdir(output_intensities_path)
-		
-		save_registered_images(self.image_manager, self.beads, output_orig)
+
+		evaluate_channel_intensities(self.image_manager, self.num_cycles, output_plot_path)
+		calculate_ssim(self.image_manager, self.num_cycles, output_plot_path)
+
+		if only_plots == False:
+			save_registered_images(self.image_manager, self.beads, output_orig)
 
 		for method in self.methods:
 			evaluate_fractions(self.beads, self.num_cycles, output_plot_path, method=method)
 			output_prediction_data(self.beads, self.num_cycles, output_orig, method=method)
-			plot_barcode_entropy(self.beads, output_plot_path, method=method)
-			plot_barcode_compression(self.beads, output_plot_path, method=method)
+			plot_barcode_entropy(self.beads,self.num_cycles,  output_plot_path, method=method)
+			plot_barcode_compression(self.beads,self.num_cycles, output_plot_path, method=method)
 			plot_barcode_confidences(self.beads, self.num_cycles, output_plot_path, method=method)
 			plot_entropy_in_space(self.get_bead_frame(method), self.num_cycles, output_plot_path)	
 			plot_compression_in_space(self.get_bead_frame(method), self.num_cycles, output_plot_path)	
 			plot_chastity_in_space(self.get_bead_frame(method), self.num_cycles, output_plot_path)
 			plot_barcodes_in_space(self.get_bead_frame(method), self.num_cycles, output_plot_path)
-			
+			plot_number_good_cycles(self.get_bead_frame(method), self.num_cycles, output_plot_path, method)
 		#Save intensity data for raw, background corrected and normalized data
 		save_intensity_data('raw', self.beads, output_intensities_path)
 		save_intensity_data('bc', self.beads, output_intensities_path)
@@ -145,19 +153,11 @@ class Experiment():
 		save_intensity_data('phasing', self.beads, output_intensities_path)
 
 		#Save image analysis
-		calculate_ssim(self.image_manager, self.num_cycles, output_plot_path)
-		#get_cross_section_profile(self.image_manager, self.num_cycles, output_plot_path)
-		#evaluate_channel_intensities(self.image_manager, self.num_cycles, output_plot_path)
-		
-		save_detected_beads(self.image_manager, self.beads, output_plot_path)
+		if only_plots == False:		
+			save_detected_beads(self.image_manager, self.beads, output_plot_path)
 
-		#Save barcode and basecalling analysis
-
-		#plot_selected(self.beads, output_plot_path)
 		evaluate_cycles(self.beads, self.num_cycles, output_plot_path, ['phasing', 'naive','only_ct'])
 
-		#save predictions and the pdf report
-		#output_prediction_data(self.beads, self.num_cycles, output_orig)
 		with open(os.path.join(output_orig, 'report_summary.yaml'), 'w') as outfile:
 			yaml.dump({
 				'num_cycles': self.num_cycles,
@@ -165,5 +165,4 @@ class Experiment():
 				'num_beads': self.num_beads,
 				'unique_barcodes': self.unique_barcodes
 			}, outfile, default_flow_style = False)
-
-		#create_report(output_orig=output_orig, output_plot_path=output_plot_path, report_name='report.pdf')
+		create_report(output_orig=output_orig, output_plot_path=output_plot_path, report_name='report.pdf')

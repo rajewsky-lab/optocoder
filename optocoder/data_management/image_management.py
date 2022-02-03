@@ -86,7 +86,6 @@ class ImageManager:
 
         # get the channel images for only the necessary ones
         image = image[self.channel_list, ...]
-
         return image, self._convert_8bit(overlay_image)
 
     def register_image_to_cycle(self, cycle_id, reference_cycle_id, hist_matching_on=True):
@@ -117,7 +116,7 @@ class ImageManager:
             registered_overlay, registered_nucleotides, warp = registration.register_image(reference_cycle_overlay, cycle_overlay, cycle_channels)
 
         save_image(registered_overlay, cycle_id, self.output_path, 'raw_registered_overlays')
-        self.warp_params.append(warp) # keep the warping parameters for later use
+        self.warp_params.append(warp) # keep the warping parameters for later use 
 
         # calculate similarity scores
         sim_score_unreg = ssim(reference_cycle_overlay, cycle_overlay, data_range=cycle_overlay.max() - cycle_overlay.min())

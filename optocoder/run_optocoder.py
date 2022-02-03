@@ -44,7 +44,7 @@ def run(parameters, rerun=False, only_report=False, run_ml=False, test_phasing=F
             with open(os.path.join(output_path, 'experiment.pkl'), 'rb') as input:
                 logging.info('Only reporting the results by loading the experiment file...')
                 experiment = pickle.load(input)
-                experiment.report(output_path)
+                experiment.report(output_path, True)
             logging.info(f"Experiment loaded and reported to {output_path}.")
             exit(0)
         else:

@@ -41,10 +41,24 @@ def randomword(length):
     letters = ['G','T','A','C']
     return ''.join(random.choice(letters) for i in range(length))
 
-def random_dist(length):
+def random_dist(length, num_cycles):
     # create random distrubution of barcodes
-	return [randomword(12) for _ in range(length)]
+	return [randomword(num_cycles) for _ in range(length)]
 
 def compress_string(barcode):
     # calculate the compressed barcode with string compression
 	return ''.join(letter+str(len(list(group))) for letter, group in groupby(barcode))
+
+def get_cycle_scores(optical, num_cycles):
+
+    optical_scores = optical.iloc[:, 4:]
+    optical_scores = np.array(optical_scores)
+    optical_scores = np.hsplit(optical_scores, num_cycles)
+
+    cycle_scores = []
+    for cycle in optical_scores:
+        maxes = np.max(cycle, axis=1)
+        cycle_scores.append(maxes)
+
+    cycle_scores = np.array(cycle_scores)
+    return cycle_scores
