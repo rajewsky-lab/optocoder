@@ -1,6 +1,13 @@
 # Optocoder
 Optocoder is a computational framework that processes microscopy images to decode bead barcodes in space. It efficiently aligns images, detects beads, and corrects for confounding factors of the fluorescence signal, such as crosstalk and phasing. Furthermore, Optocoder employs supervised machine learning to strongly increase the number of matches between optically decoded and sequenced barcodes
 
+```
+Optocoder: computational decoding of spatially indexed bead arrays
+Enes Senel, Nikolaus Rajewsky, Nikos Karaiskos
+bioRxiv 2022.02.04.478148; doi: https://doi.org/10.1101/2022.02.04.478148
+```
+
+
 ## Input
 A yaml file can be used to specify the parameters of the run. The config should include the following information.
 
@@ -51,3 +58,7 @@ If there is a Illumina barcode file is available, and we want to run machine lea
 
 These options can also be combined to run everything at once:
 ```python3 -m optocoder -config test_config.yaml --test_phasing --run_ml```
+
+
+## Other repos
+Figure generation: https://github.com/rajewsky-lab/optocoder_scripts
