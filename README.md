@@ -2,9 +2,10 @@
 Optocoder is a computational framework that processes microscopy images to decode bead barcodes in space. It efficiently aligns images, detects beads, and corrects for confounding factors of the fluorescence signal, such as crosstalk and phasing. Furthermore, Optocoder employs supervised machine learning to strongly increase the number of matches between optically decoded and sequenced barcodes
 
 ```
-Optocoder: computational decoding of spatially indexed bead arrays
-Enes Senel, Nikolaus Rajewsky, Nikos Karaiskos
-bioRxiv 2022.02.04.478148; doi: https://doi.org/10.1101/2022.02.04.478148
+Enes Senel, Nikolaus Rajewsky, Nikos Karaiskos, 
+Optocoder: computational decoding of spatially indexed bead arrays, 
+NAR Genomics and Bioinformatics, Volume 4, Issue 2, June 2022, lqac042, 
+https://doi.org/10.1093/nargab/lqac042
 ```
 
 
